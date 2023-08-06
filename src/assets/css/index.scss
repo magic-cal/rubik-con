@@ -1,0 +1,132 @@
+* {
+  font-family: "Open Sans", sans-serif;
+}
+
+body {
+  overflow: hidden;
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+canvas {
+  outline: 0;
+  user-select: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+#scanning {
+  // Overlay banner centered with wipe scanning animation
+  position: fixed;
+
+  font-family: "Open Sans", sans-serif;
+}
+
+#ribbon {
+  position: fixed;
+  right: 35px;
+  bottom: 30px;
+  font-family: "Open Sans", sans-serif;
+  user-select: none;
+  &.disable {
+    color: #aaa;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #ribbon {
+    left: 50%;
+    right: initial;
+    transform: translateX(-50%);
+  }
+}
+
+.btn {
+  display: inline-block;
+  cursor: pointer;
+  transition: 0.3s;
+  padding: 15px 15px;
+}
+
+#ribbon.disable .btn:hover {
+  text-shadow: none;
+}
+
+.btn:hover {
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn:checked {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#ribbon.disable .btn:checked {
+  text-shadow: none;
+}
+
+#fork-me {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+#progressbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.banner {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in-out;
+}
+
+.scanner {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  background-size: 200% 200%;
+  animation: scanningAnimation 2s infinite linear;
+}
+
+@keyframes scanningAnimation {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 200% 200%;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1 {
+  font-size: 24px;
+  margin-top: 10px;
+}
+
+.hide {
+  display: none;
+}
