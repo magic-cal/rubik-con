@@ -1,45 +1,28 @@
-const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
-const FileManagerPlugin = require('filemanager-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const merge = require("webpack-merge");
+const common = require("./webpack.common.js");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = merge(common, {
-  'mode': 'production',
-  'output': {
-    filename: '[name].[chunkhash].js',
+  mode: "production",
+  output: {
+    filename: "[name].[chunkhash].js",
   },
-  'plugins': [
+  plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].[chunkhash].css',
-      chunkFilename: '[id].[chunkhash].css',
-    }),
-    new FileManagerPlugin({
-      onStart: {
-        delete: ['./dist/**'],
-      },
-      onEnd: {
-        copy: [
-          {
-            source: './public',
-            destination: 'dist',
-          },
-        ],
-      },
+      filename: "[name].[chunkhash].css",
+      chunkFilename: "[id].[chunkhash].css",
     }),
   ],
-  'module': {
+  module: {
     rules: [
       {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: {
-              hmr: process.env.NODE_ENV === 'development',
-            },
           },
-          'css-loader',
-          'sass-loader',
+          "css-loader",
+          "sass-loader",
         ],
       },
     ],

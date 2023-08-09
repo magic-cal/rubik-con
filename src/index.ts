@@ -321,7 +321,7 @@ async function handleMouseUp() {
 function handleMouseDown() {
   const x = (mouseCoords.x / screenWidth) * 2 - 1;
   const y = -(mouseCoords.y / screenHeight) * 2 + 1;
-  raycaster.setFromCamera({ x, y }, camera);
+  raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
   const intersects = raycaster.intersectObjects(rubikCube.model.children);
 
   // Disable camera control when playing rotation animation
@@ -355,7 +355,7 @@ function handleMouseMove() {
   const x = (mouseCoords.x / screenWidth) * 2 - 1;
   const y = -(mouseCoords.y / screenHeight) * 2 + 1;
 
-  raycaster.setFromCamera({ x, y }, camera);
+  raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
   const intersects = raycaster.intersectObjects(rubikCube.model.children);
   if (intersects.length) {
     document.body.classList.add("cursor-pointer");

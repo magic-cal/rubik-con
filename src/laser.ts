@@ -3,7 +3,7 @@ import * as THREE from "three";
 let r = 0.1,
   R = 20,
   halfAngle = THREE.MathUtils.degToRad(45);
-let g = new THREE.PlaneBufferGeometry(1, 1, 72, 20);
+let g = new THREE.PlaneGeometry(1, 1, 72, 20);
 let pos = g.attributes.position;
 let uv = g.attributes.uv;
 for (let i = 1; i < pos.count; i++) {
