@@ -28,34 +28,34 @@ let m = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide,
   transparent: true,
   opacity: 0.5,
-  onBeforeCompile: (shader) => {
-    shader.uniforms.time = 100;
-    shader.fragmentShader = `
-          uniform float time;
-          ${shader.fragmentShader}
-        `.replace(
-      `#include <color_fragment>`,
-      `#include <color_fragment>
-          float t = time;
-          float mainWave = sin((vUv.x - t * 0.2) * 1.5 * PI2) * 0.5 + 0.5;
-          mainWave = mainWave * 0.25 + 0.25;
-          mainWave *= (sin(t * PI2 * 5.) * 0.5 + 0.5) * 0.25 + 0.75;
-          float sideLines = smoothstep(0.45, 0.5, abs(vUv.x - 0.5));
-          float scanLineSin = abs(vUv.x - (sin(t * 2.7) * 0.5 + 0.5));
-          float scanLine = smoothstep(0.01, 0., scanLineSin);
-          float fadeOut = pow(vUv.y, 2.7);
+  // onBeforeCompile: (shader) => {
+  //   shader.uniforms.time = 100;
+  //   shader.fragmentShader = `
+  //         uniform float time;
+  //         ${shader.fragmentShader}
+  //       `.replace(
+  //     `#include <color_fragment>`,
+  //     `#include <color_fragment>
+  //         float t = time;
+  //         float mainWave = sin((vUv.x - t * 0.2) * 1.5 * PI2) * 0.5 + 0.5;
+  //         mainWave = mainWave * 0.25 + 0.25;
+  //         mainWave *= (sin(t * PI2 * 5.) * 0.5 + 0.5) * 0.25 + 0.75;
+  //         float sideLines = smoothstep(0.45, 0.5, abs(vUv.x - 0.5));
+  //         float scanLineSin = abs(vUv.x - (sin(t * 2.7) * 0.5 + 0.5));
+  //         float scanLine = smoothstep(0.01, 0., scanLineSin);
+  //         float fadeOut = pow(vUv.y, 2.7);
 
-          float a = 0.;
-          a = max(a, mainWave);
-          a = max(a, sideLines);
-          a = max(a, scanLine);
+  //         float a = 0.;
+  //         a = max(a, mainWave);
+  //         a = max(a, sideLines);
+  //         a = max(a, scanLine);
 
-          diffuseColor.a = a * fadeOut;
+  //         diffuseColor.a = a * fadeOut;
 
-          `
-    );
-    console.log(shader.fragmentShader);
-  },
+  //         `
+  //   );
+  //   console.log(shader.fragmentShader);
+  // },
 });
 m.defines = { USE_UV: "" };
 

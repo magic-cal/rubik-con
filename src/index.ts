@@ -26,6 +26,7 @@ import {
 import { RUBICON_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
 import { EXTENDED_RUBICON_SOLVE } from "./utils/shuffles";
+import { degToRad, radToDeg } from "three/src/math/MathUtils";
 
 const notationTable: { [key in Axis]: [NotationBase, Toward][] } = {
   x: [
@@ -271,10 +272,7 @@ async function handleMouseUp() {
   }
 
   // current rotation deg
-  const deg =
-    Math.abs(
-      (THREE as any).Math.radToDeg(layerGroup.rotation[layerRorationAxis])
-    ) % 360;
+  const deg = Math.abs(radToDeg(layerGroup.rotation[layerRorationAxis])) % 360;
   const sign = Math.sign(layerGroup.rotation[layerRorationAxis]);
 
   let endDeg;
@@ -303,7 +301,7 @@ async function handleMouseUp() {
   }
 
   // const startRad =(THREE as any).Math.degToRad(deg * sign);
-  const endRad = (THREE as any).Math.degToRad(endDeg * sign);
+  const endRad = degToRad(endDeg * sign);
 
   draggable = false;
   // Must use await
