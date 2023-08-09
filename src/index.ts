@@ -1,39 +1,31 @@
 import "./assets/css/index.scss";
 
+import TWEEN from "@tweenjs/tween.js";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import TWEEN from "@tweenjs/tween.js";
 
-import {
-  debounce,
-  horizontalRotationAngle,
-  setOpacity,
-  getClosestAxis,
-  toRotation,
-  randomNotation,
-  sleep,
-} from "./utils";
-import { RubikCubeModel } from "./rubik-cube-model";
 import { LayerModel } from "./layer-model";
-import { Axis, NotationBase, Toward } from "./types";
 import { ProgressBar } from "./libs/progress-bar";
 import { Router } from "./libs/router";
-import {
-  EXTENDED_RUBICON_SOLVE,
-  RUBICON_SETUP,
-  RUBICON_SETUP_AND_SOLVE,
-  RUBICON_SOLVE,
-} from "./utils/shuffles";
-import { blue } from "@mui/material/colors";
-import Laser from "./laser";
+import { RubikCubeModel } from "./rubik-cube-model";
 import ScanningLineAnimation from "./scanner";
+import { Axis, NotationBase, Toward } from "./types";
+import {
+  debounce,
+  getClosestAxis,
+  horizontalRotationAngle,
+  randomNotation,
+  setOpacity,
+  sleep,
+  toRotation,
+} from "./utils";
 import {
   flipCameraAboutOrigin,
   rotateCameraAboutOrigin,
-  spinCameraAboutOrigin,
 } from "./utils/cameraMotion";
 import { RUBICON_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
+import { EXTENDED_RUBICON_SOLVE } from "./utils/shuffles";
 
 const notationTable: { [key in Axis]: [NotationBase, Toward][] } = {
   x: [
