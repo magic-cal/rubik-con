@@ -7,7 +7,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { LayerModel } from "./layer-model";
 import { ProgressBar } from "./libs/progress-bar";
 import { Router } from "./libs/router";
-import { RubikCubeModel } from "./rubik-cube-model";
+import { CUBELET_NAME, RubikCubeModel } from "./rubik-cube-model";
 import ScanningLineAnimation from "./scanner";
 import { Axis, NotationBase, Toward } from "./types";
 import {
@@ -338,7 +338,7 @@ function handleMouseDown() {
     document.body.classList.add("cursor-pointer");
     mousedownCoords.copy(mouseCoords);
 
-    mouseTarget = intersects[0];
+    mouseTarget = intersects.filter((i) => i.object.name === CUBELET_NAME)[0];
     if (debug) {
       const cubeletModel = mouseTarget.object as THREE.Mesh;
       setOpacity(cubeletModel, 0.5);
