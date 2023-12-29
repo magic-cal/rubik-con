@@ -23,10 +23,11 @@ import {
   flipCameraAboutOrigin,
   rotateCameraAboutOrigin,
 } from "./utils/cameraMotion";
-import { RUBICON_PATTERN } from "./utils/cubePatterns";
+import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
 import { EXTENDED_RUBICON_SOLVE } from "./utils/shuffles";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
+import { solver } from "./utils/solver";
 
 const notationTable: { [key in Axis]: [NotationBase, Toward][] } = {
   x: [
@@ -86,7 +87,7 @@ box.onBeforeRender = function () {
   this.update();
 };
 
-let layerRorationAxis: "x" | "y" | "z";
+let layerRotationAxis: "x" | "y" | "z";
 let layerRotationAxisToward: 1 | -1 = 1;
 let lockRotationDirection = false;
 
@@ -183,7 +184,6 @@ const performMoves = async (moves: string[]) => {
     const total = moves.length;
 
     for (let i = 0; i < total; i++) {
-      console.log("moving");
       const move = moves[i];
 
       const [layerRorationAxis, axisValue, rotationRad] = toRotation(move);
@@ -199,7 +199,7 @@ const performMoves = async (moves: string[]) => {
 
     progress.done();
     mouseTarget = null;
-    layerRorationAxis = null;
+    layerRotationAxis = null;
     mouseMoveAxis = null;
     draggable = true;
   })();
@@ -209,8 +209,6 @@ function animate(time?: number) {
   requestAnimationFrame(animate);
   if (controls) {
     controls.update();
-    // laser.update();
-    // scanner.updateAnimation();
   }
   TWEEN.update(time);
   renderer.render(scene, camera);
@@ -262,13 +260,13 @@ async function handleMouseUp() {
 
   controls.enabled = true;
 
-  if (!layerRorationAxis || !draggable) {
+  if (!layerRotationAxis || !draggable) {
     return;
   }
 
   // current rotation deg
-  const deg = Math.abs(radToDeg(layerGroup.rotation[layerRorationAxis])) % 360;
-  const sign = Math.sign(layerGroup.rotation[layerRorationAxis]);
+  const deg = Math.abs(radToDeg(layerGroup.rotation[layerRotationAxis])) % 360;
+  const sign = Math.sign(layerGroup.rotation[layerRotationAxis]);
 
   let endDeg;
   if (0 <= deg && deg <= 40) {
@@ -288,8 +286,8 @@ async function handleMouseUp() {
     const position = mouseTarget.object.position;
     // // -1 0 1 -> 0 1 2
     // const index = position[layerRorationAxis] + 1;
-    const value = position[layerRorationAxis];
-    const notation = getNotation(layerRorationAxis, value, sign, endDeg);
+    const value = position[layerRotationAxis];
+    const notation = getNotation(layerRotationAxis, value, sign, endDeg);
     rubikCube.move(notation);
 
     router.search.fd = rubikCube.asString();
@@ -301,7 +299,7 @@ async function handleMouseUp() {
   draggable = false;
   // Must use await
   // Disable drag cube until the transition is complete
-  await rotationTransition(layerRorationAxis, endRad);
+  await rotationTransition(layerRotationAxis, endRad);
   draggable = true;
 
   lockRotationDirection = false;
@@ -309,7 +307,7 @@ async function handleMouseUp() {
   layerRotationAxisToward = 1;
   initMoveToward = null;
 
-  layerRorationAxis = null;
+  layerRotationAxis = null;
   mouseMoveAxis = null;
 }
 
@@ -397,9 +395,9 @@ function handleMouseMove() {
       mouseMoveAxis = Math.abs(direction.x) > Math.abs(direction.y) ? "x" : "y";
 
       if (mouseMoveAxis === "y") {
-        layerRorationAxis = "x";
+        layerRotationAxis = "x";
       } else if (mouseMoveAxis === "x") {
-        layerRorationAxis = "z";
+        layerRotationAxis = "z";
         layerRotationAxisToward = -1;
       }
     } else if (mouseTargetFaceDirection.y < -0.9) {
@@ -409,41 +407,41 @@ function handleMouseMove() {
       mouseMoveAxis = Math.abs(direction.x) > Math.abs(direction.y) ? "x" : "y";
 
       if (mouseMoveAxis === "y") {
-        layerRorationAxis = "x";
+        layerRotationAxis = "x";
       } else if (mouseMoveAxis === "x") {
-        layerRorationAxis = "z";
+        layerRotationAxis = "z";
       }
     } else if (mouseTargetFaceDirection.x < -0.9) {
       // Left  face
       if (mouseMoveAxis === "y") {
-        layerRorationAxis = "z";
+        layerRotationAxis = "z";
       } else if (mouseMoveAxis === "x") {
-        layerRorationAxis = "y";
+        layerRotationAxis = "y";
       }
     } else if (mouseTargetFaceDirection.x > 0.9) {
       // Right face
       if (mouseMoveAxis === "y") {
-        layerRorationAxis = "z";
+        layerRotationAxis = "z";
         layerRotationAxisToward = -1;
       } else if (mouseMoveAxis === "x") {
-        layerRorationAxis = "y";
+        layerRotationAxis = "y";
       }
     } else if (mouseTargetFaceDirection.z > 0.9) {
       // Front face
       if (mouseMoveAxis === "y") {
         // Vertical movement
-        layerRorationAxis = "x";
+        layerRotationAxis = "x";
       } else if (mouseMoveAxis === "x") {
         // Horizontal movement
-        layerRorationAxis = "y";
+        layerRotationAxis = "y";
       }
     } else if (mouseTargetFaceDirection.z < -0.9) {
       // Back face
       if (mouseMoveAxis === "y") {
-        layerRorationAxis = "x";
+        layerRotationAxis = "x";
         layerRotationAxisToward = -1;
       } else if (mouseMoveAxis === "x") {
-        layerRorationAxis = "y";
+        layerRotationAxis = "y";
       }
     } else {
       throw new Error(
@@ -451,8 +449,8 @@ function handleMouseMove() {
       );
     }
 
-    const value = mouseTarget.object.position[layerRorationAxis];
-    layerGroup.group(layerRorationAxis, value, cubeletModels);
+    const value = mouseTarget.object.position[layerRotationAxis];
+    layerGroup.group(layerRotationAxis, value, cubeletModels);
   } else {
     let mouseMoveDistance =
       mouseCoords[mouseMoveAxis] - mousedownCoords[mouseMoveAxis];
@@ -482,8 +480,8 @@ function handleMouseMove() {
     if (!initMoveToward) {
       initMoveToward = Math.sign(mouseMoveDistance);
     }
-    if (layerGroup.children.length && layerRorationAxis) {
-      layerGroup.rotation[layerRorationAxis] =
+    if (layerGroup.children.length && layerRotationAxis) {
+      layerGroup.rotation[layerRotationAxis] =
         (mouseMoveDistance - MIN_MOVE_DISTANCE * initMoveToward) *
         ROTATION_RAD_PER_PX *
         layerRotationAxisToward;
@@ -586,7 +584,15 @@ const registerEventListeners = () => {
   });
 
   solveEl.addEventListener("click", async () => {
-    await performMoves(EXTENDED_RUBICON_SOLVE);
+    if (rubikCube.asString() === SOLVED_PATTERN) {
+      return;
+    }
+    if (rubikCube.asString() === RUBICON_PATTERN) {
+      await performMoves(EXTENDED_RUBICON_SOLVE);
+      return;
+    }
+    const moves = solver(rubikCube.asString());
+    await performMoves(moves);
   });
 
   randomEl.addEventListener("click", () => {
