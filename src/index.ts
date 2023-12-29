@@ -22,6 +22,7 @@ import {
 import {
   flipCameraAboutOrigin,
   rotateCameraAboutOrigin,
+  spinCameraAboutOrigin,
 } from "./utils/cameraMotion";
 import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
@@ -490,12 +491,13 @@ function handleMouseMove() {
 }
 
 const setCubeNewPattern = async (pattern: string, stepDelayMs?: number) => {
+  await resetCube(rubikCube.asString()); // reset cube rotation positions to prevent the cube from rotating when changing the pattern
   await lock(async () => {
     // change the pattern of the cube one by one
     const newRubikCube = new RubikCubeModel(pattern);
-
     const newCubeletModels = newRubikCube.model.children;
 
+    console.log({ cubeletModels, newCubeletModels });
     for (let i = 0; i < cubeletModels.length; i++) {
       cubeletModels[i] = newCubeletModels[i];
       await sleep(stepDelayMs);
@@ -514,32 +516,41 @@ const scanCubeToPatternFake = async (pattern: string) => {
   scannerState.showScanner();
   await rotateCameraAboutOrigin(camera, 45);
   await sleep(2000);
-  await rotateCameraAboutOrigin(camera, 90);
-  await sleep(2000);
-  await rotateCameraAboutOrigin(camera, 90);
-  await sleep(2000);
-  await rotateCameraAboutOrigin(camera, 90);
-  await sleep(2000);
-  await rotateCameraAboutOrigin(camera, 90);
-  await sleep(2000);
+
+  for (let i = 0; i < 4; i++) {
+    await rotateCameraAboutOrigin(camera, 90);
+    await sleep(2000);
+  }
 
   await flipCameraAboutOrigin(camera, 30);
   await sleep(2000);
   await flipCameraAboutOrigin(camera, -135);
   await sleep(2000);
-  await Promise.all([await flipCameraAboutOrigin(camera, 120)]);
-  await rotateCameraAboutOrigin(camera, 45),
-    await setCubeNewPattern(pattern, 500);
+  await flipCameraAboutOrigin(camera, 120);
+  await rotateCameraAboutOrigin(camera, 45);
+  await setCubeNewPattern(pattern, 500);
   await sleep(2000);
+  await spinCameraAboutOrigin(camera, 5000);
 
   scannerState.hideScanner();
+};
+
+const resetCube = async (pattern?: string) => {
+  await lock(async () => {
+    scene.remove(rubikCube.model);
+    rubikCube.dispose();
+    rubikCube = new RubikCubeModel(pattern);
+    cubeletModels = rubikCube.model.children;
+    scene.add(rubikCube.model);
+
+    window.history.replaceState("", "", "./");
+  })();
 };
 
 const registerEventListeners = () => {
   window.addEventListener("keydown", async (e) => {
     if (e.key === " ") {
       scanCubeToPatternFake(RUBICON_PATTERN);
-      // spinCameraAboutOrigin(camera, 5000);
     }
   });
 
@@ -600,18 +611,9 @@ const registerEventListeners = () => {
     performMoves(moves);
   });
 
-  resetEl.addEventListener(
-    "click",
-    lock(async () => {
-      scene.remove(rubikCube.model);
-      rubikCube.dispose();
-      rubikCube = new RubikCubeModel();
-      cubeletModels = rubikCube.model.children;
-      scene.add(rubikCube.model);
-
-      window.history.replaceState("", "", "./");
-    })
-  );
+  resetEl.addEventListener("click", () => {
+    resetCube();
+  });
 };
 
 registerEventListeners();
