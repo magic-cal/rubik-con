@@ -543,7 +543,7 @@ const resetCube = async (pattern?: string) => {
     cubeletModels = rubikCube.model.children;
     scene.add(rubikCube.model);
 
-    window.history.replaceState("", "", "./");
+    router.search.fd = rubikCube.asString();
   })();
 };
 
