@@ -28,7 +28,7 @@ import {
 import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
 import { EXTENDED_RUBICON_SOLVE } from "./utils/shuffles";
-import { solver } from "./utils/solver";
+import { initSolver, solver } from "./utils/solver";
 
 const notationTable: { [key in Axis]: [NotationBase, Toward][] } = {
   x: [
@@ -133,11 +133,6 @@ let rubikCube = new RubikCubeModel(router.search.fd);
 let cubeletModels = rubikCube.model.children;
 scene.add(rubikCube.model);
 scene.add(layerGroup);
-
-const scanner = new ScanningLineAnimation(scene);
-
-// const laser = new Laser();
-// scene.add(laser);
 
 if (debug) {
   const gridHelper = new THREE.GridHelper(10, 10);
@@ -602,6 +597,7 @@ const registerEventListeners = () => {
       await performMoves(EXTENDED_RUBICON_SOLVE);
       return;
     }
+    progress.start();
     const moves = solver(rubikCube.asString());
     await performMoves(moves);
   });
@@ -617,3 +613,7 @@ const registerEventListeners = () => {
 };
 
 registerEventListeners();
+
+setTimeout(() => {
+  initSolver();
+});

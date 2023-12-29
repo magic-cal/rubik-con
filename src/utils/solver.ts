@@ -1,7 +1,15 @@
 const Cube = require("cubejs");
-Cube.initSolver();
+
+let solverReady = false;
+
+export const initSolver = () => {
+  if (solverReady) return;
+  Cube.initSolver();
+  solverReady = true;
+};
 
 export const solver = (cubeState: string) => {
+  initSolver();
   const cube = Cube.fromString(cubeState);
   const solution = cube.solve();
   return notationConverter(solution);
