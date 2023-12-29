@@ -1,5 +1,5 @@
 function focusRedraw(el: HTMLElement) {
-  window.getComputedStyle(el, null).getPropertyValue('display');
+  window.getComputedStyle(el, null).getPropertyValue("display");
 }
 
 export class ProgressBar {
@@ -11,19 +11,21 @@ export class ProgressBar {
     this.el = el;
     this.hide();
 
-    const percentageEl = document.createElement('div');
-    percentageEl.classList.add('progressbar-percentage');
+    const percentageEl = document.createElement("div");
+    percentageEl.classList.add("progressbar-percentage");
     el.appendChild(percentageEl);
     this.percentageEl = percentageEl;
 
-    const position = window.getComputedStyle(el, null).getPropertyValue('position');
-    if (position === 'static') {
-      el.style.position = 'relative';
+    const position = window
+      .getComputedStyle(el, null)
+      .getPropertyValue("position");
+    if (position === "static") {
+      el.style.position = "relative";
     }
 
-    if (!document.querySelector('.progressbar-style')) {
-      const styleEl = document.createElement('style');
-      styleEl.classList.add('progressbar-style');
+    if (!document.querySelector(".progressbar-style")) {
+      const styleEl = document.createElement("style");
+      styleEl.classList.add("progressbar-style");
       styleEl.innerHTML = `
         .progressbar-percentage {
           transition: ${this.duration}s linear;
@@ -63,10 +65,10 @@ export class ProgressBar {
   }
 
   show() {
-    this.el.style.visibility = 'visible';
+    this.el.style.visibility = "visible";
   }
 
   hide() {
-    this.el.style.visibility = 'hidden';
+    this.el.style.visibility = "hidden";
   }
 }
