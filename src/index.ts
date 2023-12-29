@@ -3,6 +3,7 @@ import "./assets/css/index.scss";
 import TWEEN from "@tweenjs/tween.js";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { degToRad, radToDeg } from "three/src/math/MathUtils";
 
 import { LayerModel } from "./layer-model";
 import { ProgressBar } from "./libs/progress-bar";
@@ -27,7 +28,6 @@ import {
 import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
 import { EXTENDED_RUBICON_SOLVE } from "./utils/shuffles";
-import { degToRad, radToDeg } from "three/src/math/MathUtils";
 import { solver } from "./utils/solver";
 
 const notationTable: { [key in Axis]: [NotationBase, Toward][] } = {
