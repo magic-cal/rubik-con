@@ -9,7 +9,6 @@ import { LayerModel } from "./layer-model";
 import { ProgressBar } from "./libs/progress-bar";
 import { Router } from "./libs/router";
 import { CUBELET_NAME, RubikCubeModel } from "./rubik-cube-model";
-import ScanningLineAnimation from "./scanner";
 import { Axis, NotationBase, Toward } from "./types";
 import {
   debounce,
