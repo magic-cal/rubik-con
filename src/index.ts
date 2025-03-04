@@ -22,6 +22,8 @@ import {
 import {
   flipCameraAboutOrigin,
   rotateCameraAboutOrigin,
+  setCameraToOrigin,
+  setCameraToPosition,
   spinCameraAboutOrigin,
 } from "./utils/cameraMotion";
 import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
@@ -503,10 +505,14 @@ const setCubeNewPattern = async (pattern: string, stepDelayMs?: number) => {
     cubeletModels = newRubikCube.model.children;
     rubikCube = newRubikCube;
     scene.add(rubikCube.model);
+    router.search.fd = rubikCube.asString();
   })();
 };
 
 const scanCubeToPatternFake = async (pattern: string) => {
+  await setCameraToPosition(camera, new THREE.Vector3(3, 3, 3), 2000);
+  await sleep(2000);
+
   scannerState.showScanner();
   await rotateCameraAboutOrigin(camera, 45);
   await sleep(2000);
@@ -545,6 +551,14 @@ const registerEventListeners = () => {
   window.addEventListener("keydown", async (e) => {
     if (e.key === " ") {
       scanCubeToPatternFake(RUBICON_PATTERN);
+    }
+
+    if (e.key === "r") {
+      await resetCube();
+    }
+
+    if (e.key === "q") {
+      await setCubeNewPattern(RUBICON_PATTERN, 0);
     }
   });
 

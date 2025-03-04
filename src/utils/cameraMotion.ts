@@ -1,4 +1,5 @@
 import TWEEN from "@tweenjs/tween.js";
+import { Vector3 } from "three/src/math/Vector3";
 
 export function spinCameraAboutOrigin(
   camera: THREE.Camera,
@@ -10,7 +11,7 @@ export function spinCameraAboutOrigin(
 
   new TWEEN.Tween(current)
     .to(end, time)
-    .easing(TWEEN.Easing.Quadratic.Out)
+    .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(() => {
       camera.position.x = Math.sin(current.rad) * 5;
       camera.position.z = Math.cos(current.rad) * 5;
@@ -30,7 +31,7 @@ export function rotateCameraAboutOrigin(
 
   const tween = new TWEEN.Tween(current)
     .to(end, time)
-    .easing(TWEEN.Easing.Quadratic.Out)
+    .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(() => {
       camera.position.x = Math.sin(current.rad) * 5;
       camera.position.z = Math.cos(current.rad) * 5;
@@ -56,7 +57,7 @@ export function flipCameraAboutOrigin(
 
   const tween = new TWEEN.Tween(current)
     .to(end, time)
-    .easing(TWEEN.Easing.Quadratic.Out)
+    .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(() => {
       camera.position.y = Math.sin(current.rad) * 5;
       camera.position.x = Math.cos(current.rad) * 5;
@@ -68,3 +69,33 @@ export function flipCameraAboutOrigin(
     tween.onComplete(resolve);
   });
 }
+
+export function setCameraToOrigin(camera: THREE.Camera, time: number = 1000) {
+  setCameraToPosition(camera, new Vector3(0, 0, 0), time);
+}
+
+export const setCameraToPosition = (
+  camera: THREE.Camera,
+  position: THREE.Vector3,
+  time: number = 1000
+) => {
+  const current = {
+    x: camera.position.x,
+    y: camera.position.y,
+    z: camera.position.z,
+  };
+  const end = { x: position.x, y: position.y, z: position.z };
+
+  const tween = new TWEEN.Tween(current)
+    .to(end, time)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+      camera.position.set(current.x, current.y, current.z);
+      camera.lookAt(0, 0, 0);
+    })
+    .start(undefined);
+
+  return new Promise((resolve) => {
+    tween.onComplete(resolve);
+  });
+};

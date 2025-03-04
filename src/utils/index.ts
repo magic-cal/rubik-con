@@ -1,6 +1,11 @@
 import * as THREE from "three";
 import { Axis, AxisValue, Toward, NotationBase, NotationExtra } from "../types";
 
+const axes = ["x", "y", "z"];
+const towards = ["1", "-1"];
+const rads = [Math.PI / 2, Math.PI];
+const bases = ["L", "M", "R", "D", "E", "U", "B", "S", "F"];
+const extras = ["", `'`, "2", "", `'`];
 const axisTable: { [key in NotationBase]: [Axis, AxisValue, Toward] } = {
   L: ["x", -1, 1],
   M: ["x", 0, 1],
@@ -44,16 +49,16 @@ export function randomChoice(obj: any[]): any {
 export function sleep(millisecond: number, debug = false) {
   if (debug) {
     console.log(`sleep ${millisecond}ms`);
-    return Promise.resolve();
+    return;
   }
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     setTimeout(() => resolve(), millisecond);
   });
 }
 
-export function err(strs: TemplateStringsArray, ...args: any[]) {
+export function err(templateStrings: TemplateStringsArray, ...args: any[]) {
   let result = "";
-  strs.forEach((str, i) => {
+  templateStrings.forEach((str, i) => {
     let arg = args[i];
     if (typeof arg === "object") {
       arg = JSON.stringify(arg);
@@ -151,17 +156,12 @@ export function toRotation(notation: string): [Axis, number, number] {
   return [axis, axisValue, rad];
 }
 
-const bases = ["L", "M", "R", "D", "E", "U", "B", "S", "F"];
-const extras = ["", `'`, "2", "", `'`];
 export function randomNotation() {
   const base = randomChoice(bases);
   const extra = randomChoice(extras);
   return base + extra;
 }
 
-const axes = ["x", "y", "z"];
-const towards = ["1", "-1"];
-const rads = [Math.PI / 2, Math.PI];
 export function randomRotation(): [Axis, number] {
   const axis = randomChoice(axes);
   const toward = randomChoice(towards);
