@@ -1,38 +1,42 @@
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const smp = new SpeedMeasurePlugin();
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = smp.wrap({
-  'entry': ['./src/index.ts'],
-  'output': {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist'),
+  entry: ["./src/index.ts"],
+  output: {
+    filename: "main.js",
+    path: path.resolve(__dirname, "dist"),
   },
-  'plugins': [
+  plugins: [
     new ForkTsCheckerWebpackPlugin(),
     new webpack.ProgressPlugin(),
     new HtmlWebpackPlugin({
-      template: './src/assets/index.html',
+      template: "./src/assets/index.html",
       inject: true,
     }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: "public/img", to: "img" }],
+    }),
   ],
-  'module': {
+  module: {
     rules: [
       {
         test: /\.(js|jsx|tsx|ts)$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        loader: "babel-loader",
       },
       {
         test: /\.(png|svg|jpg|gif|webp)$/,
-        use: ['file-loader'],
+        use: ["file-loader"],
       },
     ],
   },
-  'resolve': {
-    extensions: ['.tsx', '.ts', '.js'],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
   },
 });
