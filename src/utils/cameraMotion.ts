@@ -99,3 +99,10 @@ export const setCameraToPosition = (
     tween.onComplete(resolve);
   });
 };
+
+export const stopAllTweens = () => {
+  const tweens = TWEEN.getAll();
+  for (const tween of tweens) {
+    tween.stop();
+  }
+};

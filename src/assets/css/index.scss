@@ -101,6 +101,25 @@ canvas {
   animation: scanningAnimation 2s infinite linear;
 }
 
+#black-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 300px;
+    height: 300px;
+    visibility: hidden;
+  }
+}
+
 @keyframes scanningAnimation {
   0%,
   100% {
@@ -129,4 +148,12 @@ h1 {
 
 .hide {
   display: none;
+}
+
+#black-screen-overlay.hide {
+  display: none;
+}
+
+#black-screen-overlay:not(.hide) img {
+  visibility: visible;
 }

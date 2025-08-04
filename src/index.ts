@@ -22,9 +22,9 @@ import {
 import {
   flipCameraAboutOrigin,
   rotateCameraAboutOrigin,
-  setCameraToOrigin,
   setCameraToPosition,
   spinCameraAboutOrigin,
+  stopAllTweens,
 } from "./utils/cameraMotion";
 import { RUBICON_PATTERN, SOLVED_PATTERN } from "./utils/cubePatterns";
 import { useScannerState } from "./utils/scannerState";
@@ -77,6 +77,9 @@ const randomEl = document.querySelector("#random");
 const progressBarEl = document.querySelector("#progressbar") as HTMLElement;
 const scannerBannerEl = document.querySelector(
   "#scanner-banner"
+) as HTMLElement;
+const blackScreenOverlayEl = document.querySelector(
+  "#black-screen-overlay"
 ) as HTMLElement;
 
 const scannerState = useScannerState(scannerBannerEl);
@@ -547,6 +550,11 @@ const resetCube = async (pattern?: string) => {
   })();
 };
 
+const resetAllActions = () => {
+  stopAllTweens();
+  resetCube();
+};
+
 const registerEventListeners = () => {
   window.addEventListener("keydown", async (e) => {
     if (e.key === " ") {
@@ -554,11 +562,23 @@ const registerEventListeners = () => {
     }
 
     if (e.key === "r") {
-      await resetCube();
+      await resetAllActions();
+    }
+
+    if (e.key === "p") {
+      await setCubeNewPattern(RUBICON_PATTERN, 0);
     }
 
     if (e.key === "q") {
       await setCubeNewPattern(RUBICON_PATTERN, 0);
+    }
+
+    if (e.key === "s") {
+      await solve();
+    }
+
+    if (e.key === "t" || e.key === "b") {
+      blackScreenOverlayEl.classList.toggle("hide");
     }
   });
 
@@ -602,7 +622,7 @@ const registerEventListeners = () => {
     await scanCubeToPatternFake(RUBICON_PATTERN);
   });
 
-  solveEl.addEventListener("click", async () => {
+  const solve = async () => {
     if (rubikCube.asString() === SOLVED_PATTERN) {
       return;
     }
@@ -613,7 +633,9 @@ const registerEventListeners = () => {
     progress.start();
     const moves = solver(rubikCube.asString());
     await performMoves(moves);
-  });
+  };
+
+  solveEl.addEventListener("click", solve);
 
   randomEl.addEventListener("click", () => {
     const moves = generateRandomMoves(20);
