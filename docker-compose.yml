@@ -5,5 +5,5 @@ services:
       target: production
     image: rubik-con-prod
     ports:
-      - "8080:80"
+      - "10030:80"
     restart: unless-stopped
