@@ -1,4 +1,6 @@
 import "./assets/css/index.scss";
+import { initRunnerChild } from "./runner-child";
+import { RUBICON_STEPS } from "./steps";
 
 import TWEEN from "@tweenjs/tween.js";
 import * as THREE from "three";
@@ -176,7 +178,7 @@ const generateRandomMoves = (amount: number) => {
 };
 
 const performMoves = async (moves: string[]) => {
-  lock(async () => {
+  await lock(async () => {
     console.log({ moves });
     draggable = false;
     progress.start();
@@ -555,6 +557,19 @@ const resetAllActions = () => {
   resetCube();
 };
 
+const solve = async () => {
+  if (rubikCube.asString() === SOLVED_PATTERN) {
+    return;
+  }
+  if (rubikCube.asString() === RUBICON_PATTERN) {
+    await performMoves(EXTENDED_RUBICON_SOLVE);
+    return;
+  }
+  progress.start();
+  const moves = solver(rubikCube.asString());
+  await performMoves(moves);
+};
+
 const registerEventListeners = () => {
   window.addEventListener("keydown", async (e) => {
     if (e.key === " ") {
@@ -622,19 +637,6 @@ const registerEventListeners = () => {
     await scanCubeToPatternFake(RUBICON_PATTERN);
   });
 
-  const solve = async () => {
-    if (rubikCube.asString() === SOLVED_PATTERN) {
-      return;
-    }
-    if (rubikCube.asString() === RUBICON_PATTERN) {
-      await performMoves(EXTENDED_RUBICON_SOLVE);
-      return;
-    }
-    progress.start();
-    const moves = solver(rubikCube.asString());
-    await performMoves(moves);
-  };
-
   solveEl.addEventListener("click", solve);
 
   randomEl.addEventListener("click", () => {
@@ -651,4 +653,24 @@ registerEventListeners();
 
 setTimeout(() => {
   initSolver();
+});
+
+// ---------------------------------------------------------------------------
+// Slideshow-mel integration
+// ---------------------------------------------------------------------------
+// Each PARENT_NEXT from the orchestrator advances through the demo sequence:
+//   0 intro      → (placeholder, cube at rest)
+//   1 scan       → reset to solved, then run the scanning animation
+//   2 solve      → solve the RUBICON_PATTERN
+//   3 reshuffle  → gradually return the cube to its scrambled state
+//   4 solve-again → solve again (final step: 1st press triggers, 2nd signals done)
+initRunnerChild(RUBICON_STEPS, (stepIndex) => {
+  if (stepIndex === 1) {
+    resetCube().then(() => {
+      scanCubeToPatternFake(RUBICON_PATTERN);
+    });
+  }
+  if (stepIndex === 2) solve();
+  if (stepIndex === 3) setCubeNewPattern(RUBICON_PATTERN, 500);
+  if (stepIndex === 4) solve();
 });
