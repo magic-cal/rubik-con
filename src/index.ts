@@ -658,19 +658,30 @@ setTimeout(() => {
 // ---------------------------------------------------------------------------
 // Slideshow-mel integration
 // ---------------------------------------------------------------------------
-// Each PARENT_NEXT from the orchestrator advances through the demo sequence:
-//   0 intro      → (placeholder, cube at rest)
-//   1 scan       → reset to solved, then run the scanning animation
-//   2 solve      → solve the RUBICON_PATTERN
-//   3 reshuffle  → gradually return the cube to its scrambled state
-//   4 solve-again → solve again (final step: 1st press triggers, 2nd signals done)
-initRunnerChild(RUBICON_STEPS, (stepIndex) => {
-  if (stepIndex === 1) {
+// Keyed by step id rather than index so PARENT_JUMP_TO_STEP lands on the right
+// action regardless of where the step sits in RUBICON_STEPS.
+const STEP_ACTIONS: Record<string, () => void> = {
+  // Placeholder — cube sits at rest on the title step.
+  intro: () => {},
+  // Reset to solved, then run the scanning animation.
+  scan: () => {
     resetCube().then(() => {
       scanCubeToPatternFake(RUBICON_PATTERN);
     });
-  }
-  if (stepIndex === 2) solve();
-  if (stepIndex === 3) setCubeNewPattern(RUBICON_PATTERN, 500);
-  if (stepIndex === 4) solve();
+  },
+  solve: () => {
+    solve();
+  },
+  // Gradually return the cube to its scrambled state.
+  reshuffle: () => {
+    setCubeNewPattern(RUBICON_PATTERN);
+  },
+  // Final step: 1st PARENT_NEXT triggers this, 2nd signals CHILD_AT_END.
+  "solve-again": () => {
+    solve();
+  },
+};
+
+initRunnerChild(RUBICON_STEPS, (stepIndex) => {
+  STEP_ACTIONS[RUBICON_STEPS[stepIndex].id]?.();
 });

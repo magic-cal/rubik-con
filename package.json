@@ -16,7 +16,7 @@
     "three": "^0.155.0"
   },
   "devDependencies": {
-    "slideshow-mel": "file:../slideshow-bob/packages/slideshow-mel",
+    "slideshow-mel": "file:vendor/slideshow-mel",
     "@babel/core": "^7.10.2",
     "@babel/plugin-proposal-class-properties": "^7.10.1",
     "@babel/plugin-proposal-object-rest-spread": "^7.10.1",
