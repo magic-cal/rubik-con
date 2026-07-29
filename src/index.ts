@@ -1,4 +1,6 @@
 import "./assets/css/index.scss";
+import { initRunnerChild } from "./runner-child";
+import { RUBICON_STEPS } from "./steps";
 
 import TWEEN from "@tweenjs/tween.js";
 import * as THREE from "three";
@@ -81,6 +83,7 @@ const scannerBannerEl = document.querySelector(
 const blackScreenOverlayEl = document.querySelector(
   "#black-screen-overlay"
 ) as HTMLElement;
+const countdownEl = document.querySelector("#countdown") as HTMLElement;
 
 const scannerState = useScannerState(scannerBannerEl);
 
@@ -176,7 +179,7 @@ const generateRandomMoves = (amount: number) => {
 };
 
 const performMoves = async (moves: string[]) => {
-  lock(async () => {
+  await lock(async () => {
     console.log({ moves });
     draggable = false;
     progress.start();
@@ -555,6 +558,33 @@ const resetAllActions = () => {
   resetCube();
 };
 
+// Flash "3 · 2 · 1" full-screen before an action kicks off. Swapping in a
+// fresh <span> each tick restarts the per-number CSS pop animation.
+const countdown = async (from = 3) => {
+  countdownEl.classList.remove("hide");
+  for (let n = from; n >= 1; n--) {
+    const numberEl = document.createElement("span");
+    numberEl.textContent = String(n);
+    countdownEl.innerHTML = "";
+    countdownEl.appendChild(numberEl);
+    await sleep(1500);
+  }
+  countdownEl.classList.add("hide");
+};
+
+const solve = async () => {
+  if (rubikCube.asString() === SOLVED_PATTERN) {
+    return;
+  }
+  if (rubikCube.asString() === RUBICON_PATTERN) {
+    await performMoves(EXTENDED_RUBICON_SOLVE);
+    return;
+  }
+  progress.start();
+  const moves = solver(rubikCube.asString());
+  await performMoves(moves);
+};
+
 const registerEventListeners = () => {
   window.addEventListener("keydown", async (e) => {
     if (e.key === " ") {
@@ -622,19 +652,6 @@ const registerEventListeners = () => {
     await scanCubeToPatternFake(RUBICON_PATTERN);
   });
 
-  const solve = async () => {
-    if (rubikCube.asString() === SOLVED_PATTERN) {
-      return;
-    }
-    if (rubikCube.asString() === RUBICON_PATTERN) {
-      await performMoves(EXTENDED_RUBICON_SOLVE);
-      return;
-    }
-    progress.start();
-    const moves = solver(rubikCube.asString());
-    await performMoves(moves);
-  };
-
   solveEl.addEventListener("click", solve);
 
   randomEl.addEventListener("click", () => {
@@ -651,4 +668,36 @@ registerEventListeners();
 
 setTimeout(() => {
   initSolver();
+});
+
+// ---------------------------------------------------------------------------
+// Slideshow-mel integration
+// ---------------------------------------------------------------------------
+// Keyed by step id rather than index so PARENT_JUMP_TO_STEP lands on the right
+// action regardless of where the step sits in RUBICON_STEPS.
+const STEP_ACTIONS: Record<string, () => void> = {
+  // Placeholder — cube sits at rest on the title step.
+  intro: () => {},
+  // Reset to solved, then run the scanning animation.
+  scan: () => {
+    resetCube().then(() => {
+      scanCubeToPatternFake(RUBICON_PATTERN);
+    });
+  },
+  solve: async () => {
+    await countdown();
+    await solve();
+  },
+  // Gradually return the cube to its scrambled state.
+  reshuffle: () => {
+    setCubeNewPattern(RUBICON_PATTERN);
+  },
+  // Final step: 1st PARENT_NEXT triggers this, 2nd signals CHILD_AT_END.
+  "solve-again": () => {
+    solve();
+  },
+};
+
+initRunnerChild(RUBICON_STEPS, (stepIndex) => {
+  STEP_ACTIONS[RUBICON_STEPS[stepIndex].id]?.();
 });
