@@ -83,6 +83,7 @@ const scannerBannerEl = document.querySelector(
 const blackScreenOverlayEl = document.querySelector(
   "#black-screen-overlay"
 ) as HTMLElement;
+const countdownEl = document.querySelector("#countdown") as HTMLElement;
 
 const scannerState = useScannerState(scannerBannerEl);
 
@@ -557,6 +558,20 @@ const resetAllActions = () => {
   resetCube();
 };
 
+// Flash "3 · 2 · 1" full-screen before an action kicks off. Swapping in a
+// fresh <span> each tick restarts the per-number CSS pop animation.
+const countdown = async (from = 3) => {
+  countdownEl.classList.remove("hide");
+  for (let n = from; n >= 1; n--) {
+    const numberEl = document.createElement("span");
+    numberEl.textContent = String(n);
+    countdownEl.innerHTML = "";
+    countdownEl.appendChild(numberEl);
+    await sleep(1500);
+  }
+  countdownEl.classList.add("hide");
+};
+
 const solve = async () => {
   if (rubikCube.asString() === SOLVED_PATTERN) {
     return;
@@ -669,8 +684,9 @@ const STEP_ACTIONS: Record<string, () => void> = {
       scanCubeToPatternFake(RUBICON_PATTERN);
     });
   },
-  solve: () => {
-    solve();
+  solve: async () => {
+    await countdown();
+    await solve();
   },
   // Gradually return the cube to its scrambled state.
   reshuffle: () => {
